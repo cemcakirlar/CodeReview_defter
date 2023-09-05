@@ -24,7 +24,7 @@ export interface Entity {
 export interface Transaction {
     id?: number;
     customerId: number;
-    amout: number;
+    amount: number;
     type: "c" | "d";
     date: Date;
     note: string;
