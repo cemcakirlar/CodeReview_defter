@@ -38,15 +38,9 @@ function NewEntity() {
           onChange={(e) => {
             const val = e.target.value;
             setPhoneNumber(val);
-            // if (
-            //   !val.match(
-            //     /^(((\+|00)?(90)|0)[-| ]?)?((5\d{2})[-| ]?(\d{3})[-| ]?(\d{2})[-| ]?(\d{2}))$/gm
-            //   )
-            // ) {
-            //   e.target.style.borderColor = "red";
-            // }
           }}
           value={phoneNumber}
+          inputMode="tel"
           className="p-2 bg-inherit border-white border-2 rounded"
           placeholder="telefon"
         />
