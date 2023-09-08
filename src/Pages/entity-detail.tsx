@@ -79,9 +79,24 @@ export default function EntityDetail() {
           )}
         </div>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 p-2">
         <h2 className="text-center text-xl">Islemler</h2>
-        <Link to={`/entities/${entityId}/new`}>Yeni Ekle</Link>
+        <div className="flex flex-row">
+          <Link
+            to={`/entities/${entityId}/new`}
+            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+          >
+            Yeni Ekle
+          </Link>
+          <Link
+            to={`/entities/`}
+            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+          >
+            Geri
+          </Link>
+        </div>
+      </div>
+      <div className="flex-1">
         {transactions?.map((t) => {
           const ttype = getType(t.type);
           const debit = ttype == "d";

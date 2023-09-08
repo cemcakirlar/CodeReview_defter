@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DefterDb, Entity } from "../db";
+import { Link } from "react-router-dom";
 
 const db = new DefterDb();
 
@@ -50,7 +51,17 @@ function NewEntity() {
           className="p-2 bg-inherit border-white border-2 rounded"
           placeholder="not"
         />
-        <button>kaydet</button>
+        <div className="flex flex-row">
+          <button className="text-center w-full block p-2 mt-2 underline underline-offset-4">
+            Kaydet
+          </button>
+          <Link
+            to={`/entities/`}
+            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+          >
+            Geri
+          </Link>
+        </div>
       </form>
     </>
   );

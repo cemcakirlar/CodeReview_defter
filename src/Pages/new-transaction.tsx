@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,7 +9,7 @@ const db = new DefterDb();
 const today = new Date();
 export default function NewTransaction() {
   const { entityId } = useParams();
-
+  const [result, setResult] = useState("");
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
     if (
@@ -25,7 +25,11 @@ export default function NewTransaction() {
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const [type, setType] = useState("d" as "c" | "d");
-  function resetForm() {}
+  function resetForm() {
+    setDate(today);
+    setNote("");
+    setAmount(0);
+  }
   return (
     <form
       className="p-2 m-2 flex rounded-sm flex-col gap-1"
@@ -39,11 +43,19 @@ export default function NewTransaction() {
           note,
         };
         console.log(rec);
-        db.transactions.add(rec).then(resetForm);
+        db.transactions
+          .add(rec)
+          .then(resetForm)
+          .then(() => {
+            setResult("Eklendi");
+          });
       }}
     >
+      <span className="text-center w-full block">{entity?.name}</span>
+      <span className="text-center w-full block">{entity?.phoneNumber}</span>
+
       <DatePicker
-      className="p-2 bg-inherit border-white border-2 rounded w-full"
+        className="p-2 bg-inherit border-white border-2 rounded w-full"
         selected={date}
         onChange={(d) => setDate(d)}
       />
@@ -89,8 +101,18 @@ export default function NewTransaction() {
           Odeme yapti
         </label>
       </div>
-
-      <button>kaydet</button>
+      <span className="text-center w-full block p-2 mt-2">{result}</span>
+      <div className="flex flex-row">
+        <button className="text-center w-full block p-2 mt-2 underline underline-offset-4">
+          Kaydet
+        </button>
+        <Link
+          to={`/entities/${entityId}`}
+          className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+        >
+          Geri
+        </Link>
+      </div>
     </form>
   );
 }
