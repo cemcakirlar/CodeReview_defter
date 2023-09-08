@@ -9,6 +9,7 @@ import Layout from "./Pages/layout";
 import EntityDetail from "./Pages/entity-detail";
 import NotFound from "./Pages/not-found";
 import NewTransaction from "./Pages/new-transaction";
+import TransactionDetail from "./Pages/transaction-detail";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -37,6 +38,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route
             path="/entities/:entityId/new"
             element={<NewTransaction />}
+          />
+          <Route
+            path="/entities/:entityId/:transactionId"
+            element={<TransactionDetail />}
           />
         </Route>
       </Routes>
