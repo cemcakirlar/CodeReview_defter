@@ -47,35 +47,59 @@ export default function EntityDetail() {
   return (
     <>
       <div className="flex flex-row justify-between">
-        <div className="flex flex-col w-1/2">
-          <h2 className="text-xl">{entity?.name}</h2>
-          <span>Tel: {entity?.phoneNumber}</span>
-          <span>Not: {entity?.note}</span>
+        <div className="flex flex-col w-1/2 ">
+          <div className="flex flex-row gap-2">
+            <img
+              src="/user-regular.svg"
+              className="w-6 h-6 p-1 bg-white rounded"
+            />
+            <span className="text-xl">{entity?.name}</span>
+          </div>
+          <div className="flex flex-row gap-2">
+            <img
+              src="/square-phone-solid.svg"
+              className="w-6 h-6 p-1 bg-white rounded"
+            />
+            <span className="text-xl">{entity?.phoneNumber}</span>
+          </div>
+          <div className="flex flex-row gap-2">
+            <img
+              src="/note-sticky-regular.svg"
+              className="w-6 h-6 p-1 bg-white rounded"
+            />
+            <span className="text-xl">{entity?.note}</span>
+          </div>
         </div>
         <div className="flex flex-col w-1/2 items-end">
           <span
-            className="w-1/4 font-bold text-2xl"
+            className="font-bold text-2xl"
             style={{ color: balance < 0 ? "#F31559" : "#A8DF8E" }}
           >
             {balance} tl
           </span>
           {!phoneNumberIsInvalid && (
-            <>
+            <div className="flex flex-row gap-2">
               <a
                 target="_blank"
-                className="w-1/4 font-bold text-l"
+                className=" font-bold text-l"
                 href={`sms:${normalizedPhoneNumber}&body=Borcunuz ${balance} tl`}
               >
-                SMS
+                <img
+                  src="/comment-sms-solid.svg"
+                  className="w-6 h-6 p-1 bg-white rounded"
+                />
               </a>
               <a
                 target="_blank"
-                className="w-1/4 font-bold text-l"
+                className=" font-bold text-l"
                 href={`https://wa.me/${normalizedPhoneNumber}?text=Borcunuz%20${balance}%20tl`}
               >
-                Whatsapp
+                <img
+                  src="/square-whatsapp.svg"
+                  className="w-6 h-6 p-1 bg-white rounded"
+                />
               </a>
-            </>
+            </div>
           )}
         </div>
       </div>
