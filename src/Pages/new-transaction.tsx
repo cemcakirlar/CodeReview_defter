@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 const db = new DefterDb();
 
 const today = new Date();
@@ -18,7 +21,7 @@ export default function NewTransaction() {
     }
   }, [entityId]);
 
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(today as Date | null);
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const [type, setType] = useState("d" as "c" | "d");
@@ -29,7 +32,7 @@ export default function NewTransaction() {
       onSubmit={(e) => {
         e.preventDefault();
         const rec: Transaction = {
-          date,
+          date: date ?? today,
           amount,
           customerId: entity?.id!,
           type,
@@ -39,17 +42,12 @@ export default function NewTransaction() {
         db.transactions.add(rec).then(resetForm);
       }}
     >
-      <input
-        onChange={(e) => {
-          //`${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`
-          setDate(new Date(e.target.value));
-        }}
-        value={date.toDateString()}
-        type="date"
-        pattern="\d{4}-\d{2}-\d{2}"
-        className="p-2 bg-inherit border-white border-2 rounded"
-        placeholder="tarih"
+      <DatePicker
+      className="p-2 bg-inherit border-white border-2 rounded w-full"
+        selected={date}
+        onChange={(d) => setDate(d)}
       />
+
       <input
         onChange={(e) => {
           const amount = parseFloat(e.target.value);
