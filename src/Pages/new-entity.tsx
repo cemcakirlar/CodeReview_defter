@@ -8,6 +8,7 @@ function NewEntity() {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [note, setNote] = useState("");
+  const [result, setResult] = useState("");
 
   function resetForm() {
     setName("");
@@ -25,8 +26,12 @@ function NewEntity() {
             phoneNumber,
             note,
           };
-          console.log(newCustomer);
-          db.entities.add(newCustomer).then(resetForm);
+          db.entities
+            .add(newCustomer)
+            .then(resetForm)
+            .then(() => {
+              setResult("Eklendi");
+            });
         }}
       >
         <input
@@ -51,6 +56,7 @@ function NewEntity() {
           className="p-2 bg-inherit border-white border-2 rounded"
           placeholder="not"
         />
+        <span className="text-center w-full block p-2 mt-2">{result}</span>
         <div className="flex flex-row">
           <button className="text-center w-full block p-2 mt-2 underline underline-offset-4">
             Kaydet

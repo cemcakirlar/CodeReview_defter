@@ -1,24 +1,30 @@
 import { Link, useParams } from "react-router-dom";
-import { DefterDb, Entity } from "../db";
+import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
 
 const db = new DefterDb();
-export default function EntityDetail() {
-  const { entityId } = useParams();
+export default function TransactionDetail() {
+  const { entityId, transactionId } = useParams();
+  const [transaction, setTransaction] = useState(
+    undefined as Transaction | undefined
+  );
 
-  const transactions = useLiveQuery(() => {
+  useEffect(() => {
     if (
-      entityId &&
-      typeof entityId === "string" &&
-      !Number.isNaN(parseInt(entityId))
+      transactionId &&
+      typeof transactionId === "string" &&
+      !Number.isNaN(parseInt(transactionId))
     ) {
-      return db.transactions
-        .where("customerId")
-        .equals(parseInt(entityId) ?? -1)
-        .sortBy('date')
+      db.transactions
+        .where("id")
+        .equals(parseInt(transactionId) ?? -1)
+        .toArray()
+        .then((ts) => {
+          if (ts.length > 0) {
+            setTransaction(ts[0]);
+          }
+        });
     }
-    return [];
   }, []);
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
@@ -31,19 +37,21 @@ export default function EntityDetail() {
     }
   }, [entityId]);
 
-  const totalCredit = transactions
-    ?.filter((c) => getType(c.type) == "c")
-    .reduce(function (a, b) {
-      return a + b.amount;
-    }, 0);
-  const totalDebit = transactions
-    ?.filter((c) => getType(c.type) == "d")
-    .reduce(function (a, b) {
-      return a + b.amount;
-    }, 0);
-  const balance = (totalCredit ?? 0) - (totalDebit ?? 0);
   const normalizedPhoneNumber = normalizePhoneNumber(entity?.phoneNumber ?? "");
   const phoneNumberIsInvalid = normalizedPhoneNumber == "invalid";
+
+  const msg = phoneNumberIsInvalid
+    ? ""
+    : transaction?.type === "d"
+    ? `${getLocaleDate(transaction.date)} tarihinde ${
+        transaction.amount
+      } tl borclandiniz`
+    : transaction?.type === "c"
+    ? `${getLocaleDate(transaction.date)} tarihinde ${
+        transaction.amount
+      } tl odeme yaptiniz`
+    : "";
+
   return (
     <>
       <div className="flex flex-row justify-between">
@@ -73,16 +81,16 @@ export default function EntityDetail() {
         <div className="flex flex-col w-1/2 items-end">
           <span
             className="font-bold text-2xl"
-            style={{ color: balance < 0 ? "#F31559" : "#A8DF8E" }}
+            style={{ color: transaction?.type === "d" ? "#F31559" : "#A8DF8E" }}
           >
-            {balance} tl
+            {transaction?.amount} tl
           </span>
           {!phoneNumberIsInvalid && (
             <div className="flex flex-row gap-2">
               <a
                 target="_blank"
                 className=" font-bold text-l"
-                href={`sms:${normalizedPhoneNumber}&body=Borcunuz ${balance} tl`}
+                href={`sms:${normalizedPhoneNumber}&body=${msg}`}
               >
                 <img
                   src="/comment-sms-solid.svg"
@@ -92,7 +100,7 @@ export default function EntityDetail() {
               <a
                 target="_blank"
                 className=" font-bold text-l"
-                href={`https://wa.me/${normalizedPhoneNumber}?text=Borcunuz%20${balance}%20tl`}
+                href={`https://wa.me/${normalizedPhoneNumber}?text=${msg}`}
               >
                 <img
                   src="/square-whatsapp.svg"
@@ -103,13 +111,6 @@ export default function EntityDetail() {
           )}
         </div>
       </div>
-
-      <Row
-        label="Toplam"
-        desc=""
-        debit={totalDebit}
-        credit={totalCredit}
-      />
       <div className="flex-1 p-2">
         <div className="flex flex-row">
           <Link
@@ -119,78 +120,18 @@ export default function EntityDetail() {
             Yeni Ekle
           </Link>
           <Link
-            to={`/entities`}
+            to={`/entities/${entityId}`}
             className="text-center w-full block p-2 mt-2 underline underline-offset-4"
           >
             Geri
           </Link>
         </div>
       </div>
-      <div className="flex-1">
-        <span className="text-center w-full block p-2 mt-2 border-t-2 border-b-2 border-white">
-          Detaylar
-        </span>
-        {transactions?.map((t) => {
-          const ttype = getType(t.type);
-          const debit = ttype == "d";
-          const credit = ttype == "c";
-          const error = !debit && !credit;
-          if (error) {
-            console.log("error on transaction type for :", t.id);
-          }
-          return (
-            <Link
-              key={t.id}
-              to={`/entities/${entityId}/${t.id}`}
-              className="w-full block "
-            >
-              <Row
-                label={t.date}
-                desc={t.note}
-                debit={debit ? t.amount : undefined}
-                credit={credit ? t.amount : undefined}
-              />
-            </Link>
-          );
-        })}
-      </div>
+      <div>Tarih: {getLocaleDate(transaction?.date)} </div>
+      <div>Tutar: {transaction?.amount} tl</div>
+      <div>Borc/Odeme: {transaction?.type == "c" ? "Odeme" : "Borc"}</div>
+      <div>Not: {transaction?.note}</div>
     </>
-  );
-}
-
-type RowProps = {
-  label: string | Date;
-  desc: string | undefined;
-  debit: number | undefined;
-  credit: number | undefined;
-};
-function Row({ label, desc, debit, credit }: RowProps) {
-  const lblStr = typeof label === "string" ? label : getLocaleDate(label);
-  return (
-    <div className="p-2 flex text-white  border-b-2 rounded-sm justify-between">
-      <div className="w-1/2 md:w-1/3">
-        <span>{lblStr}</span>
-      </div>
-      <div className="hidden md:block md:w-1/3">
-        <span>{desc}</span>
-      </div>
-      <div className="w-1/2 md:w-1/3 flex justify-between">
-        <div className="w-1/2 font-bold">
-          {debit && (
-            <span style={{ color: "#F31559", textAlign: "start" }}>
-              {debit} tl
-            </span>
-          )}
-        </div>
-        <div className="w-1/2 font-bold">
-          {credit && (
-            <span style={{ color: "#A8DF8E", textAlign: "end" }}>
-              {credit} tl
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -212,22 +153,7 @@ function normalizePhoneNumber(phoneNumber: string) {
 
   return phoneNumber;
 }
-function getType(tType: string) {
-  switch (tType.toLowerCase()) {
-    case "a":
-    case "alacak":
-    case "c":
-    case "credit":
-      return "c";
 
-    case "b":
-    case "borc":
-    case "d":
-    case "debit":
-      return "d";
-  }
-  return "";
-}
 function getLocaleDate(ms: Date | undefined) {
   return ms?.toLocaleDateString("tr-TR", {
     year: "numeric",
