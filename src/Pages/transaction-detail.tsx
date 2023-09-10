@@ -1,9 +1,10 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
 
 const db = new DefterDb();
 export default function TransactionDetail() {
+  const navigate = useNavigate();
   const { entityId, transactionId } = useParams();
   const [transaction, setTransaction] = useState(
     undefined as Transaction | undefined
@@ -22,8 +23,12 @@ export default function TransactionDetail() {
         .then((ts) => {
           if (ts.length > 0) {
             setTransaction(ts[0]);
+          } else {
+            navigate(`/entities/${entityId}`);
           }
         });
+    } else {
+      navigate(`/entities/${entityId}`);
     }
   }, []);
   const [entity, setEntity] = useState(undefined as Entity | undefined);
@@ -33,7 +38,15 @@ export default function TransactionDetail() {
       typeof entityId === "string" &&
       !Number.isNaN(parseInt(entityId))
     ) {
-      db.entities.get(parseInt(entityId)).then((rec) => setEntity(rec));
+      db.entities.get(parseInt(entityId)).then((rec) => {
+        if (rec) {
+          setEntity(rec);
+        } else {
+          navigate(`/entities/`);
+        }
+      });
+    } else {
+      navigate(`/entities/`);
     }
   }, [entityId]);
 
@@ -51,6 +64,18 @@ export default function TransactionDetail() {
         transaction.amount
       } tl odeme yaptiniz`
     : "";
+
+  function handleRemove() {
+    if (
+      transactionId &&
+      typeof transactionId === "string" &&
+      !Number.isNaN(parseInt(transactionId))
+    ) {
+      db.transactions
+        .delete(parseInt(transactionId))
+        .then(() => navigate(`/entities/${entityId}`));
+    }
+  }
 
   return (
     <>
@@ -131,6 +156,12 @@ export default function TransactionDetail() {
       <div>Tutar: {transaction?.amount} tl</div>
       <div>Borc/Odeme: {transaction?.type == "c" ? "Odeme" : "Borc"}</div>
       <div>Not: {transaction?.note}</div>
+      <button
+        className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+        onClick={handleRemove}
+      >
+        Sil
+      </button>
     </>
   );
 }
