@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { DefterDb } from "../db";
 import { Link } from "react-router-dom";
+import { VList } from "virtua";
 
 const db = new DefterDb();
 
@@ -31,7 +32,7 @@ function Entities() {
       >
         Yeni Ekle
       </Link>
-      <div>
+      <VList style={{ height: "70vh" }}>
         {entities ? (
           entities.map((c) => (
             <Link
@@ -52,7 +53,7 @@ function Entities() {
         ) : (
           <>loading</>
         )}
-      </div>
+      </VList>
     </>
   );
 }
