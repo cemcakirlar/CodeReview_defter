@@ -32,7 +32,7 @@ function Entities() {
       >
         Yeni Ekle
       </Link>
-      <VList style={{ height: "70vh" }}>
+      <VList style={{ height: "60vh" }}>
         {entities ? (
           entities.map((c) => (
             <Link

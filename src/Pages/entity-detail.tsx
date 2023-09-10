@@ -182,7 +182,7 @@ export default function EntityDetail() {
             <span className="text-center w-full block p-1 mt-1 border-t-2 border-b-2 border-white">
               Detaylar
             </span>
-            <VList style={{ height: "55vh" }}>
+            <VList style={{ height: "50vh" }}>
               {transactions?.map((t) => {
                 const ttype = getType(t.type);
                 const debit = ttype == "d";
