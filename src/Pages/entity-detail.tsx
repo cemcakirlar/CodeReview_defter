@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { DefterDb, Entity } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { VList } from "virtua";
 
 const db = new DefterDb();
 export default function EntityDetail() {
@@ -181,29 +182,31 @@ export default function EntityDetail() {
             <span className="text-center w-full block p-1 mt-1 border-t-2 border-b-2 border-white">
               Detaylar
             </span>
-            {transactions?.map((t) => {
-              const ttype = getType(t.type);
-              const debit = ttype == "d";
-              const credit = ttype == "c";
-              const error = !debit && !credit;
-              if (error) {
-                console.log("error on transaction type for :", t.id);
-              }
-              return (
-                <Link
-                  key={t.id}
-                  to={`/entities/${entityId}/${t.id}`}
-                  className="w-full block "
-                >
-                  <Row
-                    label={t.date}
-                    desc={t.note}
-                    debit={debit ? t.amount : undefined}
-                    credit={credit ? t.amount : undefined}
-                  />
-                </Link>
-              );
-            })}
+            <VList style={{ height: "50vh" }}>
+              {transactions?.map((t) => {
+                const ttype = getType(t.type);
+                const debit = ttype == "d";
+                const credit = ttype == "c";
+                const error = !debit && !credit;
+                if (error) {
+                  console.log("error on transaction type for :", t.id);
+                }
+                return (
+                  <Link
+                    key={t.id}
+                    to={`/entities/${entityId}/${t.id}`}
+                    className="w-full block "
+                  >
+                    <Row
+                      label={t.date}
+                      desc={t.note}
+                      debit={debit ? t.amount : undefined}
+                      credit={credit ? t.amount : undefined}
+                    />
+                  </Link>
+                );
+              })}
+            </VList>
           </div>
         </>
       )}
