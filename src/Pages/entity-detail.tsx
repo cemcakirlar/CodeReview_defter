@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { DefterDb, Entity } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -6,6 +6,9 @@ import { useLiveQuery } from "dexie-react-hooks";
 const db = new DefterDb();
 export default function EntityDetail() {
   const { entityId } = useParams();
+  const navigate = useNavigate();
+  const [removeRequested, setRemoveRequested] = useState(false);
+  const [removeStarted, setRemoveStarted] = useState(false);
 
   const transactions = useLiveQuery(() => {
     if (
@@ -16,7 +19,8 @@ export default function EntityDetail() {
       return db.transactions
         .where("customerId")
         .equals(parseInt(entityId) ?? -1)
-        .sortBy('date')
+        .reverse()
+        .sortBy("date");
     }
     return [];
   }, []);
@@ -27,7 +31,15 @@ export default function EntityDetail() {
       typeof entityId === "string" &&
       !Number.isNaN(parseInt(entityId))
     ) {
-      db.entities.get(parseInt(entityId)).then((rec) => setEntity(rec));
+      db.entities.get(parseInt(entityId)).then((rec) => {
+        if (rec) {
+          setEntity(rec);
+        } else {
+          navigate(`/entities`);
+        }
+      });
+    } else {
+      navigate(`/entities`);
     }
   }, [entityId]);
 
@@ -44,6 +56,18 @@ export default function EntityDetail() {
   const balance = (totalCredit ?? 0) - (totalDebit ?? 0);
   const normalizedPhoneNumber = normalizePhoneNumber(entity?.phoneNumber ?? "");
   const phoneNumberIsInvalid = normalizedPhoneNumber == "invalid";
+  function handleRemove() {
+    setRemoveStarted(true);
+    proceedRemove().then(() => {
+      navigate(`/entities`);
+    });
+  }
+  async function proceedRemove() {
+    await db.transactions.bulkDelete(
+      transactions?.map((t) => t.id ?? -1) ?? []
+    );
+    await db.entities.delete(entity?.id ?? -1);
+  }
   return (
     <>
       <div className="flex flex-row justify-between">
@@ -103,57 +127,86 @@ export default function EntityDetail() {
           )}
         </div>
       </div>
-
-      <Row
-        label="Toplam"
-        desc=""
-        debit={totalDebit}
-        credit={totalCredit}
-      />
-      <div className="flex-1 p-2">
-        <div className="flex flex-row">
-          <Link
-            to={`/entities/${entityId}/new`}
-            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+      {removeRequested ? (
+        <div>
+          <span>
+            Bu kisi/kurum ve islem detaylari silinecektir. Emin misiniz?{" "}
+          </span>
+          <button
+            className="text-center text-red-400 font-bold text-2xl w-full block p-2 mt-2 underline underline-offset-4"
+            onClick={handleRemove}
+            disabled={removeStarted}
           >
-            Yeni Ekle
-          </Link>
-          <Link
-            to={`/entities`}
+            Sil
+          </button>
+          <button
             className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+            onClick={() => setRemoveRequested(false)}
+            disabled={removeStarted}
           >
             Geri
-          </Link>
+          </button>
         </div>
-      </div>
-      <div className="flex-1">
-        <span className="text-center w-full block p-2 mt-2 border-t-2 border-b-2 border-white">
-          Detaylar
-        </span>
-        {transactions?.map((t) => {
-          const ttype = getType(t.type);
-          const debit = ttype == "d";
-          const credit = ttype == "c";
-          const error = !debit && !credit;
-          if (error) {
-            console.log("error on transaction type for :", t.id);
-          }
-          return (
-            <Link
-              key={t.id}
-              to={`/entities/${entityId}/${t.id}`}
-              className="w-full block "
-            >
-              <Row
-                label={t.date}
-                desc={t.note}
-                debit={debit ? t.amount : undefined}
-                credit={credit ? t.amount : undefined}
-              />
-            </Link>
-          );
-        })}
-      </div>
+      ) : (
+        <>
+          <button
+            className="text-left text-red-400 font-bold w-full block p-1 underline underline-offset-4"
+            onClick={() => setRemoveRequested(true)}
+          >
+            Kisi Sil
+          </button>
+          <Row
+            label="Toplam"
+            desc=""
+            debit={totalDebit}
+            credit={totalCredit}
+          />
+          <div className="flex-1 p-1">
+            <div className="flex flex-row">
+              <Link
+                to={`/entities/${entityId}/new`}
+                className="text-center w-full block underline underline-offset-4"
+              >
+                Yeni Ekle
+              </Link>
+              <Link
+                to={`/entities`}
+                className="text-center w-full block underline underline-offset-4"
+              >
+                Geri
+              </Link>
+            </div>
+          </div>
+          <div className="flex-1">
+            <span className="text-center w-full block p-1 mt-1 border-t-2 border-b-2 border-white">
+              Detaylar
+            </span>
+            {transactions?.map((t) => {
+              const ttype = getType(t.type);
+              const debit = ttype == "d";
+              const credit = ttype == "c";
+              const error = !debit && !credit;
+              if (error) {
+                console.log("error on transaction type for :", t.id);
+              }
+              return (
+                <Link
+                  key={t.id}
+                  to={`/entities/${entityId}/${t.id}`}
+                  className="w-full block "
+                >
+                  <Row
+                    label={t.date}
+                    desc={t.note}
+                    debit={debit ? t.amount : undefined}
+                    credit={credit ? t.amount : undefined}
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      )}
     </>
   );
 }
