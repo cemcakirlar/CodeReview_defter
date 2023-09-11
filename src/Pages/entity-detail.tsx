@@ -3,6 +3,7 @@ import { DefterDb, Entity } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { VList } from "virtua";
+import { BsTelephoneOutbound , BsWhatsapp, CiUser ,MdOutlineStickyNote2, MdOutlineTextsms } from "../icons";
 
 const db = new DefterDb();
 export default function EntityDetail() {
@@ -70,28 +71,25 @@ export default function EntityDetail() {
     await db.entities.delete(entity?.id ?? -1);
   }
   return (
-    <>
+    <div className="w-full">
       <div className="flex flex-row justify-between">
         <div className="flex flex-col w-1/2 ">
           <div className="flex flex-row gap-2">
-            <img
-              src="/user-regular.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-2xl">
+              <CiUser />
+            </span>
             <span className="text-xl">{entity?.name}</span>
           </div>
           <div className="flex flex-row gap-2">
-            <img
-              src="/square-phone-solid.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-xl">
+              <BsTelephoneOutbound />
+            </span>
             <span className="text-xl">{entity?.phoneNumber}</span>
           </div>
           <div className="flex flex-row gap-2">
-            <img
-              src="/note-sticky-regular.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-xl">
+              <MdOutlineStickyNote2/>
+            </span>
             <span className="text-xl">{entity?.note}</span>
           </div>
         </div>
@@ -103,26 +101,20 @@ export default function EntityDetail() {
             {balance} tl
           </span>
           {!phoneNumberIsInvalid && (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-4">
               <a
                 target="_blank"
-                className=" font-bold text-l"
+                className=" font-bold text-2xl"
                 href={`sms:${normalizedPhoneNumber}&body=Borcunuz ${balance} tl`}
               >
-                <img
-                  src="/comment-sms-solid.svg"
-                  className="w-6 h-6 p-1 bg-white rounded"
-                />
+                    <MdOutlineTextsms />
               </a>
               <a
                 target="_blank"
-                className=" font-bold text-l"
+                className=" font-bold text-xl"
                 href={`https://wa.me/${normalizedPhoneNumber}?text=Borcunuz%20${balance}%20tl`}
               >
-                <img
-                  src="/square-whatsapp.svg"
-                  className="w-6 h-6 p-1 bg-white rounded"
-                />
+               <BsWhatsapp />
               </a>
             </div>
           )}
@@ -210,7 +202,7 @@ export default function EntityDetail() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
 
