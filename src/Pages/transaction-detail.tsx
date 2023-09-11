@@ -1,6 +1,15 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
+import {
+  CiUser,
+  BsTelephoneOutbound,
+  MdOutlineStickyNote2,
+  BsWhatsapp,
+  MdOutlineTextsms,
+  AiTwotoneCalendar,
+  FaScaleUnbalancedFlip,
+} from "../icons";
 
 const db = new DefterDb();
 export default function TransactionDetail() {
@@ -78,28 +87,25 @@ export default function TransactionDetail() {
   }
 
   return (
-    <>
+    <div className="w-full">
       <div className="flex flex-row justify-between">
         <div className="flex flex-col w-1/2 ">
           <div className="flex flex-row gap-2">
-            <img
-              src="/user-regular.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-2xl">
+              <CiUser />
+            </span>
             <span className="text-xl">{entity?.name}</span>
           </div>
           <div className="flex flex-row gap-2">
-            <img
-              src="/square-phone-solid.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-xl">
+              <BsTelephoneOutbound />
+            </span>
             <span className="text-xl">{entity?.phoneNumber}</span>
           </div>
           <div className="flex flex-row gap-2">
-            <img
-              src="/note-sticky-regular.svg"
-              className="w-6 h-6 p-1 bg-white rounded"
-            />
+            <span className="text-xl">
+              <MdOutlineStickyNote2 />
+            </span>
             <span className="text-xl">{entity?.note}</span>
           </div>
         </div>
@@ -111,26 +117,20 @@ export default function TransactionDetail() {
             {transaction?.amount} tl
           </span>
           {!phoneNumberIsInvalid && (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-4">
               <a
                 target="_blank"
-                className=" font-bold text-l"
+                className=" font-bold text-2xl"
                 href={`sms:${normalizedPhoneNumber}&body=${msg}`}
               >
-                <img
-                  src="/comment-sms-solid.svg"
-                  className="w-6 h-6 p-1 bg-white rounded"
-                />
+                <MdOutlineTextsms />
               </a>
               <a
                 target="_blank"
-                className=" font-bold text-l"
+                className=" font-bold text-xl"
                 href={`https://wa.me/${normalizedPhoneNumber}?text=${msg}`}
               >
-                <img
-                  src="/square-whatsapp.svg"
-                  className="w-6 h-6 p-1 bg-white rounded"
-                />
+                <BsWhatsapp />
               </a>
             </div>
           )}
@@ -152,17 +152,35 @@ export default function TransactionDetail() {
           </Link>
         </div>
       </div>
-      <div>Tarih: {getLocaleDate(transaction?.date)} </div>
-      <div>Tutar: {transaction?.amount} tl</div>
-      <div>Borc/Odeme: {transaction?.type == "c" ? "Odeme" : "Borc"}</div>
-      <div>Not: {transaction?.note}</div>
+      <div className="flex  gap-2">
+        <span className="text-2xl">
+          <AiTwotoneCalendar />
+        </span>
+        <span>{getLocaleDate(transaction?.date)}</span>
+      </div>
+      <div className="flex  gap-2">
+        <span className="text-xl">&nbsp;₺&nbsp;</span>
+        <span>{transaction?.amount} tl</span>
+      </div>
+      <div className="flex  gap-2">
+        <span className="text-2xl">
+          <FaScaleUnbalancedFlip />
+        </span>
+        <span>{transaction?.type == "c" ? "Odeme" : "Borc"}</span>
+      </div>
+      <div className="flex  gap-2">
+        <span className="text-2xl">
+          <MdOutlineStickyNote2 />
+        </span>
+        <span>{transaction?.note}</span>
+      </div>
       <button
         className="text-center w-full block p-2 mt-2 underline underline-offset-4"
         onClick={handleRemove}
       >
         Sil
       </button>
-    </>
+    </div>
   );
 }
 
