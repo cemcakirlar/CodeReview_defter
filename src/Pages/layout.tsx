@@ -3,7 +3,7 @@ import { MdMenuBook } from "../icons";
 
 export default function Layout() {
   return (
-    <main className="flex h-full flex-col items-center justify-start p-4 text-white  md:p-10 w-full flex-1 md:w-[720px]">
+    <main className="flex h-full m-auto flex-col items-center justify-start p-4 text-white  md:p-10 w-full flex-1 md:w-[720px]">
       <div className="w-full flex">
         <Link
           to="/"
