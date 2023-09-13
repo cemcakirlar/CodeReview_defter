@@ -56,7 +56,6 @@ export default function NewTransaction() {
           type,
           note,
         };
-        console.log(rec);
         db.transactions
           .add(rec)
           .then(resetForm)

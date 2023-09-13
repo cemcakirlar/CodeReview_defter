@@ -44,7 +44,7 @@ function Entities() {
                 <span className="w-1/2 md:w-1/4 text-center">
                   {c.phoneNumber}
                 </span>
-                <span className="hidden md:inline-block md:w-1/2">
+                <span className="hidden text-right md:inline-block md:w-1/2">
                   {c.note}
                 </span>
               </div>
