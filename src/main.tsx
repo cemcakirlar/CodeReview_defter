@@ -10,6 +10,8 @@ import EntityDetail from "./Pages/entity-detail";
 import NotFound from "./Pages/not-found";
 import NewTransaction from "./Pages/new-transaction";
 import TransactionDetail from "./Pages/transaction-detail";
+import Restore from "./Pages/restore";
+import Backup from "./Pages/backup";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -42,6 +44,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route
             path="/entities/:entityId/:transactionId"
             element={<TransactionDetail />}
+          />
+          <Route
+            path="/restore"
+            element={<Restore />}
+          />
+          <Route
+            path="/backup"
+            element={<Backup />}
           />
         </Route>
       </Routes>
