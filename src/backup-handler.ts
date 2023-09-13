@@ -6,7 +6,9 @@ export async function saveToDb(fileContent: string) {
     const lines = fileContent.split(/[\r\n]+/)
     try {
         const wholeData = lines.map((v) => parseLine(v))
-        // console.log(wholeData);
+
+        await db.transactions.clear()
+        await db.entities.clear()
 
         let latestEntityId = 0
         let latestEntityPhone = ''
