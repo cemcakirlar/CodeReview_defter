@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { DefterDb, Entity } from "../db";
 import { Link, useNavigate } from "react-router-dom";
-import { BsTelephoneOutbound, CiUser, MdOutlineStickyNote2 } from "../icons";
 import {
   Card,
   CardContent,

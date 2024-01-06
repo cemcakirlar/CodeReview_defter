@@ -3,7 +3,7 @@ import { DefterDb, Entity } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { VList } from "virtua";
-import { BsTelephoneOutbound, BsWhatsapp, CiUser, MdOutlineStickyNote2, MdOutlineTextsms } from "../icons";
+import { BsTelephoneOutbound, BsWhatsapp, MdOutlineTextsms } from "../icons";
 import {
   Card,
   CardContent,
@@ -13,17 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -31,22 +20,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { TrashIcon } from "@radix-ui/react-icons";
 
@@ -56,9 +41,7 @@ export default function EntityDetail() {
   const [open, setOpen] = useState(false);
 
   const { entityId } = useParams();
-  const navigate = useNavigate();
-  const [removeRequested, setRemoveRequested] = useState(false);
-  const [removeStarted, setRemoveStarted] = useState(false);
+  const navigate = useNavigate(); 
 
   const transactions = useLiveQuery(() => {
     if (
@@ -107,7 +90,6 @@ export default function EntityDetail() {
   const normalizedPhoneNumber = normalizePhoneNumber(entity?.phoneNumber ?? "");
   const phoneNumberIsInvalid = normalizedPhoneNumber == "invalid";
   function handleRemove() {
-    setRemoveStarted(true);
     proceedRemove().then(() => {
       navigate(`/entities`);
     });
