@@ -195,7 +195,8 @@ export default function EntityDetail() {
           </div>
         </CardHeader>
         <CardContent>
-          {status}
+
+          <Status entityName={entity?.name ?? ''} balance={balance} />
         </CardContent>
         <CardFooter className="flex justify-between">
 
@@ -224,6 +225,31 @@ export default function EntityDetail() {
     </div>
   );
 }
+
+interface StatusProps {
+  balance: number,
+  entityName: string
+}
+
+function Status({ balance, entityName }: StatusProps) {
+
+  const positive = `${entityName} isimli kişinin ${balance} tl alacağı var`
+  const noutral = `${entityName} isimli kişinin borcu yoktur`
+  const negative = `${entityName} isimli kişinin ${balance * -1} tl borcu var`
+
+  return (
+    <div className="flex justify-center items-center">
+      {balance == 0 || balance < 1 ?
+        <span className="text-muted-foreground bg-muted p-2 rounded">{noutral}</span>
+        : balance > 0 ?
+          <span>{positive}</span>
+          : <span className="text-destructive-foreground bg-destructive p-2 rounded">{negative}</span>
+      }
+    </div>
+  )
+
+}
+
 
 interface RowProps {
   t: Transaction,

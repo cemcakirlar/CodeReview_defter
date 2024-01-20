@@ -32,38 +32,8 @@ import { Label } from "@/components/ui/label";
 const db = new DefterDb();
 const formSchema = z.object({
   date: z.date(),
-  amountWhole: z.string().transform((val, ctx) => {
-    const parsed = parseInt(val);
-    if (isNaN(parsed)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Not a number",
-      });
-
-      // This is a special symbol you can use to
-      // return early from the transform function.
-      // It has type `never` so it does not affect the
-      // inferred return type.
-      return z.NEVER;
-    }
-    return parsed;
-  }),
-  amountFractional: z.string().transform((val, ctx) => {
-    const parsed = parseInt(val);
-    if (isNaN(parsed)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Not a number",
-      });
-
-      // This is a special symbol you can use to
-      // return early from the transform function.
-      // It has type `never` so it does not affect the
-      // inferred return type.
-      return z.NEVER;
-    }
-    return parsed;
-  }),
+  amountWhole: z.string(),
+  amountFractional: z.string(),
   type: z.enum(['c', 'd']),
   note: z.string(),
 })
@@ -71,7 +41,7 @@ const formSchema = z.object({
 
 const today = new Date();
 export default function NewTransaction() {
-
+  const [amountError, setAmountError] = useState('')
   const { entityId } = useParams();
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
@@ -91,18 +61,32 @@ export default function NewTransaction() {
     defaultValues: {
       date: today,
       note: '',
-      amountWhole: 0,
-      amountFractional: 0,
+      amountWhole: '0',
+      amountFractional: '0',
       type: 'd'
     },
   })
 
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const fraction = values.amountFractional > 10 ?
-      values.amountFractional / 100 :
-      values.amountFractional / 10;
-    const amount = values.amountWhole + fraction
+    setAmountError('')
+    console.log(values);
+
+    const wh = getNumSafely(values.amountWhole)
+    if (wh === undefined) {
+      setAmountError('Hatalı tutar')
+      return
+    }
+    const fr = getNumSafely(values.amountFractional)
+    if (fr === undefined) {
+      setAmountError('Kusurat kısmında hata var')
+      return
+    }
+
+    const fraction = fr > 10 ?
+      fr / 100 :
+      fr / 10;
+    const amount = wh + fraction
 
     const rec: Transaction = {
       date: values.date,
@@ -123,7 +107,7 @@ export default function NewTransaction() {
 
   // 
 
-  if (!form.formState.isValid && form.formState.isValid) {
+  if (!form.formState.isValid && form.formState.isDirty) {
     console.log('1', form.formState.errors);
     console.log('2', form.formState);
   }
@@ -195,8 +179,9 @@ export default function NewTransaction() {
                   )}
                 />
               </div>
-
-
+              {amountError.length > 0 ?
+                <span>{amountError}</span>
+                : <></>}
             </div>
 
 
@@ -263,4 +248,12 @@ export default function NewTransaction() {
       </Form>
     </Card>
   );
+}
+
+function getNumSafely(s: string) {
+  if (!/^\d+$/.test(s)) {
+    return undefined
+  }
+  const parsed = parseInt(s)
+  return parsed
 }
