@@ -24,7 +24,7 @@ function Entities() {
   );
 
   return (
-    <div className="w-full container">
+    <div className="w-full">
       <Link
         to="/entities/new"
         className={buttonVariants({ variant: 'default', })}

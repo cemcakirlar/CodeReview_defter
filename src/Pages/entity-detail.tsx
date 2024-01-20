@@ -148,8 +148,8 @@ export default function EntityDetail() {
               </CardDescription>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button>İşlemler</Button>
+              <DropdownMenuTrigger className={buttonVariants()}>
+                İşlemler
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {phoneNumberIsInvalid ? (

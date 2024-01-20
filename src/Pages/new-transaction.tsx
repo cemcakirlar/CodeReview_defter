@@ -1,22 +1,78 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
-  BsTelephoneOutbound,
-  CiUser,
-  MdOutlineStickyNote2,
-  AiTwotoneCalendar,
-  FaScaleUnbalancedFlip,
-} from "../icons";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Controller, useForm } from "react-hook-form"
+import { Button, buttonVariants } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+import * as z from "zod"
+import { Label } from "@/components/ui/label";
 
 const db = new DefterDb();
+const formSchema = z.object({
+  date: z.date(),
+  amountWhole: z.string().transform((val, ctx) => {
+    const parsed = parseInt(val);
+    if (isNaN(parsed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Not a number",
+      });
+
+      // This is a special symbol you can use to
+      // return early from the transform function.
+      // It has type `never` so it does not affect the
+      // inferred return type.
+      return z.NEVER;
+    }
+    return parsed;
+  }),
+  amountFractional: z.string().transform((val, ctx) => {
+    const parsed = parseInt(val);
+    if (isNaN(parsed)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Not a number",
+      });
+
+      // This is a special symbol you can use to
+      // return early from the transform function.
+      // It has type `never` so it does not affect the
+      // inferred return type.
+      return z.NEVER;
+    }
+    return parsed;
+  }),
+  type: z.enum(['c', 'd']),
+  note: z.string(),
+})
+
 
 const today = new Date();
 export default function NewTransaction() {
-  const { entityId } = useParams();
-  const [result, setResult] = useState("");
+
+  const { entityId } = useParams(); 
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
     if (
@@ -28,182 +84,189 @@ export default function NewTransaction() {
     }
   }, [entityId]);
 
-  const [date, setDate] = useState(today as Date | null);
-  const [amountWhole, setAmountWhole] = useState(0);
-  const [amountFractional, setAmountFractional] = useState(0);
-  const [amount, setAmount] = useState(0);
-  const [note, setNote] = useState("");
-  const [type, setType] = useState("d" as "c" | "d");
-  function resetForm() {
-    setDate(today);
-    setNote("");
-    setAmount(0);
-  }
-  function calculateAmount(wholePart: number, fractionPart: number) {
-    const fraction = fractionPart > 10 ? fractionPart / 100 : fractionPart / 10;
 
-    setAmount(wholePart + fraction);
+  const navigate = useNavigate();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      date: today,
+      note: '',
+      amountWhole: 0,
+      amountFractional: 0,
+      type: 'd'
+    },
+  })
+
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    const fraction = values.amountFractional > 10 ?
+      values.amountFractional / 100 :
+      values.amountFractional / 10;
+    const amount = values.amountWhole + fraction
+
+    const rec: Transaction = {
+      date: values.date,
+      amount: amount,
+      customerId: entity?.id!,
+      type: values.type,
+      note: values.note,
+    };
+    console.log(rec)
+
+    db.transactions
+      .add(rec)
+      .then(() => {
+        navigate(`/entities/${entityId}`)
+        toast("Yeni işlem eklendi")
+      });
   }
+
+  // 
+
+  if (!form.formState.isValid && form.formState.isValid) {
+    console.log('1', form.formState.errors);
+    console.log('2', form.formState);
+  }
+  
   return (
-    <form
-      className="flex rounded-sm flex-col gap-1 w-full"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const rec: Transaction = {
-          date: date ?? today,
-          amount,
-          customerId: entity?.id!,
-          type,
-          note,
-        };
-        db.transactions
-          .add(rec)
-          .then(resetForm)
-          .then(() => {
-            setResult("Eklendi");
-          });
-      }}
-    >
-      <div className="flex flex-col w-full ">
-        <div className="flex flex-row gap-2">
-          <span className="text-2xl">
-            <CiUser />
-          </span>
-          <span className="text-xl">{entity?.name}</span>
-        </div>
-        <div className="flex flex-row gap-2">
-          <span className="text-xl">
-            <BsTelephoneOutbound />
-          </span>
-          <span className="text-xl">{entity?.phoneNumber}</span>
-        </div>
-        <div className="flex flex-row gap-2">
-          <span className="text-xl">
-            <MdOutlineStickyNote2 />
-          </span>
-          <span className="text-xl">{entity?.note}</span>
-        </div>
-      </div>
-      <div className="flex mt-6">
-        <div className="w-1/6 flex justify-center items-center">
-          <span className="text-2xl">
-            <AiTwotoneCalendar />
-          </span>
-        </div>
-        <div className="w-5/6 flex bg-inherit border-white border-2 rounded ">
-          <DatePicker
-            className="p-2 bg-inherit w-full"
-            selected={date}
-            onChange={(d) => setDate(d)}
-          />
-        </div>
-      </div>
-      <div className="flex">
-        <div className="w-1/6 flex justify-center items-center">
-          <span className="text-2xl"> ₺ </span>
-        </div>
-        <div className="w-5/6 flex bg-inherit border-white border-2 rounded ">
-          <input
-            onChange={(e) => {
-              let val = e.target.value;
-              if (e.target.value.endsWith(".")) {
-                val = val + "0";
-              }
-              let amount = parseFloat(val);
-              if (Number.isNaN(amount)) {
-                amount = 0;
-              }
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{entity?.name} icin yeni işlem ekle</CardTitle>
+              <CardDescription>
+                {entity?.note}
+                <br />
+                {entity?.phoneNumber}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
 
-              setAmountWhole(amount);
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-              calculateAmount(amount, amountFractional);
-            }}
-            value={amountWhole}
-            type="tel"
-            className="p-2 w-2/3 bg-inherit"
-            placeholder="tutar"
-          />
-          <span className="text-3xl"> . </span>
-          <input
-            onChange={(e) => {
-              let val = e.target.value;
-              if (e.target.value.endsWith(".")) {
-                val = val + "0";
-              }
-              let amount = parseFloat(val);
-              if (Number.isNaN(amount)) {
-                amount = 0;
-              }
+            <CardContent>
 
-              setAmountFractional(amount);
+              <div>
+                <Label>Tarih</Label>
+                <br />
+                <Controller
+                  control={form.control}
+                  name='date'
+                  render={({ field }) => (
+                    <DatePicker
+                      wrapperClassName="w-full "
+                      className="p-2 w-full bg-inherit border-2 text-sm rounded "
+                      placeholderText='Işlem tarihi'
+                      onChange={(date) => field.onChange(date)}
+                      selected={field.value}
+                    />
+                  )}
+                />
+              </div>
 
-              calculateAmount(amountWhole, amount);
-            }}
-            value={amountFractional}
-            maxLength={2}
-            type="tel"
-            className="p-2 w-1/3 bg-inherit"
-            placeholder="tutar"
-          />
-        </div>
-      </div>
-      <div className="flex">
-        <div className="w-1/6 flex justify-center items-center">
-          <span className="text-2xl">
-            <MdOutlineStickyNote2 />
-          </span>
-        </div>
-        <div className="w-5/6 flex bg-inherit border-white border-2 rounded ">
-          <input
-            onChange={(e) => setNote(e.target.value)}
-            value={note}
-            className="p-2 bg-inherit w-full"
-            placeholder="not"
-          />
-        </div>
-      </div>
-      <div className="flex">
-        <div className="w-1/6 flex justify-center items-center">
-          <span className="text-2xl">
-            <FaScaleUnbalancedFlip />
-          </span>
-        </div>
-        <div className="w-5/6 flex bg-inherit border-white border-2 rounded justify-between p-2 ">
-          <label>
-            <input
-              type="radio"
-              value="d"
-              className="m-1"
-              checked={type === "d"}
-              onChange={(e) => e.target.checked && setType("d")}
-            />
-            Borclandi
-          </label>
-          <label>
-            <input
-              type="radio"
-              value="c"
-              className="m-1"
-              checked={type === "c"}
-              onChange={(e) => e.target.checked && setType("c")}
-            />
-            Odeme yapti
-          </label>
-        </div>
-      </div>
+              <div className="w-full">
 
-      <span className="text-center w-full block p-2 mt-2">{result}</span>
-      <div className="flex flex-row">
-        <button className="text-center w-full block p-2 mt-2 underline underline-offset-4">
-          Kaydet
-        </button>
-        <Link
-          to={`/entities/${entityId}`}
-          className="text-center w-full block p-2 mt-2 underline underline-offset-4"
-        >
-          Geri
-        </Link>
-      </div>
-    </form>
+                <Label>Tutar</Label>
+                <br />
+                <div className="flex w-full">
+
+                  <FormField
+                    control={form.control}
+                    name="amountWhole"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormControl>
+                          <Input
+
+                            type="number"
+                            placeholder="Tam kisim"
+                            {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="amountFractional"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input type="number" placeholder="Kusuratli kisim" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+
+              </div>
+
+
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Not</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Not" {...field} />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Işlem tipi</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="d" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Borçlandı
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="c" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Ödeme yaptı
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button type="submit">Kaydet</Button>
+              <Link
+                to={`/entities/${entityId}`}
+                className={buttonVariants({ variant: 'outline', })}
+              >
+                Geri
+              </Link>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+    </>
   );
 }
