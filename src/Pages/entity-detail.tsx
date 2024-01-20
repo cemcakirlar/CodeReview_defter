@@ -61,7 +61,8 @@ export default function EntityDetail() {
     .reduce(function (a, b) {
       return a + b.amount;
     }, 0);
-  const balance = (totalCredit ?? 0) - (totalDebit ?? 0);
+
+  const balance = round((totalCredit ?? 0) - (totalDebit ?? 0), 2);
   const normalizedPhoneNumber = normalizePhoneNumber(entity?.phoneNumber ?? "");
   const phoneNumberIsInvalid = normalizedPhoneNumber == "invalid";
   function handleRemove() {
@@ -217,7 +218,7 @@ function Status({ balance, entityName }: StatusProps) {
       {(balance < 1 && balance > -1) ?
         <span className="text-muted-foreground bg-muted p-2 border-2 rounded-lg">{noutral}</span>
         : balance > 0 ?
-          <span   className="border-2 rounded-lg p-2" >{positive}</span>
+          <span className="border-2 rounded-lg p-2" >{positive}</span>
           : <span className="text-destructive-foreground bg-destructive p-2 rounded">{negative}</span>
       }
     </div>
@@ -317,4 +318,8 @@ function getLocaleDate(ms: Date | undefined) {
     day: "numeric",
     // dateStyle:'long'
   });
+}
+function round(value: number, precision: number) {
+  var multiplier = Math.pow(10, precision || 0);
+  return Math.round(value * multiplier) / multiplier;
 }

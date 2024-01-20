@@ -1,7 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
-import { CiUser, BsTelephoneOutbound, MdOutlineStickyNote2, BsWhatsapp, MdOutlineTextsms, AiTwotoneCalendar, FaScaleUnbalancedFlip, } from "../icons";
+import { BsTelephoneOutbound, BsWhatsapp, MdOutlineTextsms, } from "../icons";
 import { TrashIcon } from "@radix-ui/react-icons";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card"
