@@ -1,18 +1,20 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
-import {
-  CiUser,
-  BsTelephoneOutbound,
-  MdOutlineStickyNote2,
-  BsWhatsapp,
-  MdOutlineTextsms,
-  AiTwotoneCalendar,
-  FaScaleUnbalancedFlip,
-} from "../icons";
+import { CiUser, BsTelephoneOutbound, MdOutlineStickyNote2, BsWhatsapp, MdOutlineTextsms, AiTwotoneCalendar, FaScaleUnbalancedFlip, } from "../icons";
+import { TrashIcon } from "@radix-ui/react-icons";
+
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Label } from "@/components/ui/label";
 
 const db = new DefterDb();
 export default function TransactionDetail() {
+  const [open, setOpen] = useState(false);
+
+
   const navigate = useNavigate();
   const { entityId, transactionId } = useParams();
   const [transaction, setTransaction] = useState(
@@ -65,14 +67,12 @@ export default function TransactionDetail() {
   const msg = phoneNumberIsInvalid
     ? ""
     : transaction?.type === "d"
-    ? `${getLocaleDate(transaction.date)} tarihinde ${
-        transaction.amount
+      ? `${getLocaleDate(transaction.date)} tarihinde ${transaction.amount
       } tl borclandiniz`
-    : transaction?.type === "c"
-    ? `${getLocaleDate(transaction.date)} tarihinde ${
-        transaction.amount
-      } tl odeme yaptiniz`
-    : "";
+      : transaction?.type === "c"
+        ? `${getLocaleDate(transaction.date)} tarihinde ${transaction.amount
+        } tl odeme yaptiniz`
+        : "";
 
   function handleRemove() {
     if (
@@ -85,101 +85,122 @@ export default function TransactionDetail() {
         .then(() => navigate(`/entities/${entityId}`));
     }
   }
+  if (!transaction) {
+    return <>islem bulunamadi</>
+  }
 
   return (
     <div className="w-full">
-      <div className="flex flex-row justify-between">
-        <div className="flex flex-col w-1/2 ">
-          <div className="flex flex-row gap-2">
-            <span className="text-2xl">
-              <CiUser />
-            </span>
-            <span className="text-xl">{entity?.name}</span>
-          </div>
-          <div className="flex flex-row gap-2">
-            <span className="text-xl">
-              <BsTelephoneOutbound />
-            </span>
-            <span className="text-xl">{entity?.phoneNumber}</span>
-          </div>
-          <div className="flex flex-row gap-2">
-            <span className="text-xl">
-              <MdOutlineStickyNote2 />
-            </span>
-            <span className="text-xl">{entity?.note}</span>
-          </div>
-        </div>
-        <div className="flex flex-col w-1/2 items-end">
-          <span
-            className="font-bold text-2xl"
-            style={{ color: transaction?.type === "d" ? "#F31559" : "#A8DF8E" }}
-          >
-            {transaction?.amount} tl
-          </span>
-          {!phoneNumberIsInvalid && (
-            <div className="flex flex-row gap-4">
-              <a
-                target="_blank"
-                className=" font-bold text-2xl"
-                href={`sms:${normalizedPhoneNumber}&body=${msg}`}
-              >
-                <MdOutlineTextsms />
-              </a>
-              <a
-                target="_blank"
-                className=" font-bold text-xl"
-                href={`https://wa.me/${normalizedPhoneNumber}?text=${msg}`}
-              >
-                <BsWhatsapp />
-              </a>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Emin misiniz?</DialogTitle>
+            <DialogDescription>İşlem silinecektir.Bu işlem geri alınamaz.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="flex justify-between items-center flex-1">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Vazgeç
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button type="button" onClick={handleRemove} variant="destructive">
+                  İşlemi Sil
+                </Button>
+              </DialogClose>
+
             </div>
-          )}
-        </div>
-      </div>
-      <div className="flex-1 p-2">
-        <div className="flex flex-row">
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{entity?.name}</CardTitle>
+              <CardDescription>
+                {entity?.note}
+                <br />
+                {entity?.phoneNumber}
+              </CardDescription>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger className={buttonVariants()}>
+                İşlemler
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {phoneNumberIsInvalid ? (
+                  <DropdownMenuItem disabled>
+                    Hatalı telefon numarası
+                  </DropdownMenuItem>
+                )
+                  : (
+                    <>
+                      <DropdownMenuItem>
+                        <a
+                          className="flex items-center gap-1"
+                          href={`tel:${normalizedPhoneNumber}`}>
+                          <BsTelephoneOutbound />
+                          Arama yap
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <a
+                          target="_blank"
+                          className="flex items-center gap-1"
+                          href={`sms:${normalizedPhoneNumber}&body=${msg}`}
+                        >
+                          <MdOutlineTextsms /> Kısa mesaj
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <a
+                          target="_blank"
+                          className="flex items-center gap-1"
+                          href={`https://wa.me/${normalizedPhoneNumber}?text=${msg}`}
+                        >
+                          <BsWhatsapp /> Whatsapp
+                        </a>
+                      </DropdownMenuItem>
+                    </>
+                  )
+                }
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => { setOpen(true) }}>
+                  <TrashIcon />
+                  İşlemi Sil
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Status
+            balance={transaction.amount ?? 0}
+            type={transaction.type ?? 'c'}
+            date={transaction.date ?? new Date()}
+          />
+          {transaction.note.length > 0 ?
+            <Label>Not: {transaction.note}</Label>
+            : <></>
+          }
+        </CardContent>
+        <CardFooter className="flex justify-between">
           <Link
             to={`/entities/${entityId}/new`}
-            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+            className={buttonVariants()}
           >
-            Yeni Ekle
+            Yeni işlem ekle
           </Link>
           <Link
             to={`/entities/${entityId}`}
-            className="text-center w-full block p-2 mt-2 underline underline-offset-4"
+            className={buttonVariants({ variant: 'outline' })}
           >
             Geri
           </Link>
-        </div>
-      </div>
-      <div className="flex  gap-2">
-        <span className="text-2xl">
-          <AiTwotoneCalendar />
-        </span>
-        <span>{getLocaleDate(transaction?.date)}</span>
-      </div>
-      <div className="flex  gap-2">
-        <span className="text-xl">&nbsp;₺&nbsp;</span>
-        <span>{transaction?.amount} tl</span>
-      </div>
-      <div className="flex  gap-2">
-        <span className="text-2xl">
-          <FaScaleUnbalancedFlip />
-        </span>
-        <span>{transaction?.type == "c" ? "Odeme" : "Borc"}</span>
-      </div>
-      <div className="flex  gap-2">
-        <span className="text-2xl">
-          <MdOutlineStickyNote2 />
-        </span>
-        <span>{transaction?.note}</span>
-      </div>
-      <button
-        className="text-center w-full block p-2 mt-2 underline underline-offset-4"
-        onClick={handleRemove}
-      >
-        Sil
-      </button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
@@ -210,4 +231,25 @@ function getLocaleDate(ms: Date | undefined) {
     day: "numeric",
     // dateStyle:'long'
   });
+}
+
+
+interface StatusProps {
+  balance: number,
+  type: 'c' | 'd',
+  date: Date
+}
+
+function Status({ balance, type, date }: StatusProps) {
+  const positive = `${getLocaleDate(date)} tarihinde ${balance} tl ödeme yaptı`
+  const negative = `${getLocaleDate(date)} tarihinde ${balance} tl borçlandı`
+
+  return (
+    <div className="flex justify-center items-center">
+      {type == 'c' ?
+        <span className="border-2 rounded-lg p-2">{positive}</span>
+        : <span className="text-destructive-foreground bg-destructive p-2 rounded">{negative}</span>
+      }
+    </div>
+  )
 }

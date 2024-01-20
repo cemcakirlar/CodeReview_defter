@@ -169,7 +169,6 @@ export default function EntityDetail() {
           </div>
         </CardHeader>
         <CardContent>
-
           <Status entityName={entity?.name ?? ''} balance={balance} />
         </CardContent>
         <CardFooter className="flex justify-between">
@@ -216,9 +215,9 @@ function Status({ balance, entityName }: StatusProps) {
   return (
     <div className="flex justify-center items-center">
       {(balance < 1 && balance > -1) ?
-        <span className="text-muted-foreground bg-muted p-2 rounded">{noutral}</span>
+        <span className="text-muted-foreground bg-muted p-2 border-2 rounded-lg">{noutral}</span>
         : balance > 0 ?
-          <span>{positive}</span>
+          <span   className="border-2 rounded-lg p-2" >{positive}</span>
           : <span className="text-destructive-foreground bg-destructive p-2 rounded">{negative}</span>
       }
     </div>
@@ -239,12 +238,15 @@ function Row({ t, entityId }: RowProps) {
   const debit = ttype == "d";
   const credit = ttype == "c";
   const error = !debit && !credit;
+
   if (error) {
     console.log("error on transaction type for :", t.id);
   }
+
   const amountInfo = (<span className="w-full" style={{ color: debit ? "#F31559" : credit ? "#A8DF8E" : "hsl(var(--primary))" }}>
     {t.amount} tl
   </span>)
+
   return (
     <div className="mb-2 flex items-center justify-between rounded-md border p-4"    >
       <div className="space-y-1">
