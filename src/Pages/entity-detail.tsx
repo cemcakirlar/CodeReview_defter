@@ -8,6 +8,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { TrashIcon } from "@radix-ui/react-icons";
+import { round } from "@/lib/utils";
 
 const db = new DefterDb();
 
@@ -342,8 +343,4 @@ function getLocaleDate(ms: Date | undefined) {
     day: "numeric",
     // dateStyle:'long'
   });
-}
-function round(value: number, precision: number) {
-  var multiplier = Math.pow(10, precision || 0);
-  return Math.round(value * multiplier) / multiplier;
 }
