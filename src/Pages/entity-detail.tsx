@@ -1,8 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { DefterDb, Entity } from "../db";
+import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { VList } from "virtua";
 import { BsTelephoneOutbound, BsWhatsapp, MdOutlineTextsms } from "../icons";
 import {
   Card,
@@ -30,8 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-
-
 import { Button, buttonVariants } from "@/components/ui/button"
 import { TrashIcon } from "@radix-ui/react-icons";
 
@@ -41,7 +38,7 @@ export default function EntityDetail() {
   const [open, setOpen] = useState(false);
 
   const { entityId } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const transactions = useLiveQuery(() => {
     if (
@@ -219,73 +216,58 @@ export default function EntityDetail() {
       </Card>
 
       <div className="flex-1">
-        <span className="text-center w-full block p-1 mt-1 border-t-2 border-b-2 border-white">
+        <span className="text-center w-full block p-1 mt-1 ">
           Detaylar
         </span>
-        <VList style={{ height: "50vh" }}>
-          {transactions?.map((t) => {
-            const ttype = getType(t.type);
-            const debit = ttype == "d";
-            const credit = ttype == "c";
-            const error = !debit && !credit;
-            if (error) {
-              console.log("error on transaction type for :", t.id);
-            }
-            return (
-              <Link
-                key={t.id}
-                to={`/entities/${entityId}/${t.id}`}
-                className="w-full block "
-              >
-                <Row
-                  label={t.date}
-                  desc={t.note}
-                  debit={debit ? t.amount : undefined}
-                  credit={credit ? t.amount : undefined}
-                />
-              </Link>
-            );
-          })}
-        </VList>
+        {transactions?.map((t) => <Row key={t.id} entityId={entityId} t={t} />)}
       </div>
     </div>
   );
 }
 
-type RowProps = {
-  label: string | Date;
-  desc: string | undefined;
-  debit: number | undefined;
-  credit: number | undefined;
-};
-function Row({ label, desc, debit, credit }: RowProps) {
-  const lblStr = typeof label === "string" ? label : getLocaleDate(label);
+interface RowProps {
+  t: Transaction,
+  entityId: string | undefined
+}
+
+function Row({ t, entityId }: RowProps) {
+  const lblStr = typeof t.date === "string" ? t.date : getLocaleDate(t.date);
+
+  const ttype = getType(t.type);
+  const debit = ttype == "d";
+  const credit = ttype == "c";
+  const error = !debit && !credit;
+  if (error) {
+    console.log("error on transaction type for :", t.id);
+  }
   return (
-    <div className="p-2 flex text-white  border-b-2 rounded-sm justify-between">
-      <div className="w-1/2 md:w-1/3">
-        <span>{lblStr}</span>
+    <div
+      className="mb-2 flex items-center justify-between rounded-md border p-4"
+    >
+      <div className="space-y-1">
+        <p className="text-sm font-medium leading-none">
+          {lblStr}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {t.note}
+        </p>
       </div>
-      <div className="hidden md:block md:w-1/3">
-        <span>{desc}</span>
+      <div >
+        <span className="w-full" style={{ color: debit ? "#F31559" : credit ? "#A8DF8E" : "hsl(var(--primary))" }}>
+          {t.amount} tl
+        </span>
       </div>
-      <div className="w-1/2 md:w-1/3 flex justify-between">
-        <div className="w-1/2 font-bold">
-          {debit && (
-            <span style={{ color: "#F31559", textAlign: "start" }}>
-              {debit} tl
-            </span>
-          )}
-        </div>
-        <div className="w-1/2 font-bold">
-          {credit && (
-            <span style={{ color: "#A8DF8E", textAlign: "end" }}>
-              {credit} tl
-            </span>
-          )}
-        </div>
+      <div>
+        <Link
+          to={`/entities/${entityId}/${t.id}`}
+          className={buttonVariants({ variant: 'default', })}
+        >
+          Detay
+        </Link>
       </div>
     </div>
   );
+
 }
 
 function normalizePhoneNumber(phoneNumber: string) {

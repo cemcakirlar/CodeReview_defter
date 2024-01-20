@@ -96,7 +96,7 @@ export default function NewEntity() {
                   <FormItem>
                     <FormLabel>Telefon Numarası</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Telefon Numarası" {...field} />
+                      <Input type="tel" placeholder="Telefon Numarası" {...field} />
                     </FormControl>
                     <FormDescription />
                     <FormMessage />

@@ -178,9 +178,7 @@ export default function NewTransaction() {
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormControl>
-                        <Input
-                          type="tel"
-                          {...field} />
+                        <Input type="tel" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -191,7 +189,7 @@ export default function NewTransaction() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="number" placeholder="Kusuratli kisim" {...field} />
+                        <Input type="tel"{...field} />
                       </FormControl>
                     </FormItem>
                   )}
