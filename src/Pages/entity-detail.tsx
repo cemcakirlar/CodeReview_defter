@@ -3,36 +3,14 @@ import { DefterDb, Entity, Transaction } from "../db";
 import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { BsTelephoneOutbound, BsWhatsapp, MdOutlineTextsms } from "../icons";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { TrashIcon } from "@radix-ui/react-icons";
 
 const db = new DefterDb();
+
 export default function EntityDetail() {
 
   const [open, setOpen] = useState(false);
@@ -97,10 +75,6 @@ export default function EntityDetail() {
     );
     await db.entities.delete(entity?.id ?? -1);
   }
-  const status =
-    balance > 0 ? `${entity?.name} isimli kişinin ${balance} tl alacağı var` :
-      balance == 0 ? `${entity?.name} isimli kişinin borcu yoktur` :
-        `${entity?.name} isimli kişinin ${balance * -1} tl borcu var`
 
   const msg =
     balance > 0 ? `Alacağınız%20${balance}%20tl` :
@@ -220,7 +194,9 @@ export default function EntityDetail() {
         <span className="text-center w-full block p-1 mt-1 ">
           Detaylar
         </span>
-        {transactions?.map((t) => <Row key={t.id} entityId={entityId} t={t} />)}
+        {(transactions && transactions.length > 0) ?
+          transactions.map((t) => <Row key={t.id} entityId={entityId} t={t} />)
+          : <>Hiç işlem yok</>}
       </div>
     </div>
   );
@@ -239,7 +215,7 @@ function Status({ balance, entityName }: StatusProps) {
 
   return (
     <div className="flex justify-center items-center">
-      {balance == 0 || balance < 1 ?
+      {(balance < 1 && balance > -1) ?
         <span className="text-muted-foreground bg-muted p-2 rounded">{noutral}</span>
         : balance > 0 ?
           <span>{positive}</span>
