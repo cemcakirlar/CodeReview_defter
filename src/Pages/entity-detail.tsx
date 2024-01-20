@@ -242,10 +242,11 @@ function Row({ t, entityId }: RowProps) {
   if (error) {
     console.log("error on transaction type for :", t.id);
   }
+  const amountInfo = (<span className="w-full" style={{ color: debit ? "#F31559" : credit ? "#A8DF8E" : "hsl(var(--primary))" }}>
+    {t.amount} tl
+  </span>)
   return (
-    <div
-      className="mb-2 flex items-center justify-between rounded-md border p-4"
-    >
+    <div className="mb-2 flex items-center justify-between rounded-md border p-4"    >
       <div className="space-y-1">
         <p className="text-sm font-medium leading-none">
           {lblStr}
@@ -253,11 +254,12 @@ function Row({ t, entityId }: RowProps) {
         <p className="text-sm text-muted-foreground">
           {t.note}
         </p>
+        <p className="md:hidden">
+          {amountInfo}
+        </p>
       </div>
-      <div >
-        <span className="w-full" style={{ color: debit ? "#F31559" : credit ? "#A8DF8E" : "hsl(var(--primary))" }}>
-          {t.amount} tl
-        </span>
+      <div className="hidden md:block">
+        {amountInfo}
       </div>
       <div>
         <Link
