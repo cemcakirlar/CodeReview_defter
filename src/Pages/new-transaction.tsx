@@ -72,7 +72,7 @@ const formSchema = z.object({
 const today = new Date();
 export default function NewTransaction() {
 
-  const { entityId } = useParams(); 
+  const { entityId } = useParams();
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
     if (
@@ -127,146 +127,142 @@ export default function NewTransaction() {
     console.log('1', form.formState.errors);
     console.log('2', form.formState);
   }
-  
+
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>{entity?.name} icin yeni işlem ekle</CardTitle>
-              <CardDescription>
-                {entity?.note}
-                <br />
-                {entity?.phoneNumber}
-              </CardDescription>
-            </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>{entity?.name} icin yeni işlem ekle</CardTitle>
+            <CardDescription>
+              {entity?.note}
+              <br />
+              {entity?.phoneNumber}
+            </CardDescription>
           </div>
-        </CardHeader>
+        </div>
+      </CardHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-            <CardContent>
+          <CardContent>
 
-              <div>
-                <Label>Tarih</Label>
-                <br />
-                <Controller
+            <div>
+              <Label>Tarih</Label>
+              <br />
+              <Controller
+                control={form.control}
+                name='date'
+                render={({ field }) => (
+                  <DatePicker
+                    wrapperClassName="w-full "
+                    className="p-2 w-full bg-inherit border-2 text-sm rounded "
+                    placeholderText='Işlem tarihi'
+                    onChange={(date) => field.onChange(date)}
+                    selected={field.value}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="w-full">
+
+              <Label>Tutar</Label>
+              <br />
+              <div className="flex w-full">
+
+                <FormField
                   control={form.control}
-                  name='date'
+                  name="amountWhole"
                   render={({ field }) => (
-                    <DatePicker
-                      wrapperClassName="w-full "
-                      className="p-2 w-full bg-inherit border-2 text-sm rounded "
-                      placeholderText='Işlem tarihi'
-                      onChange={(date) => field.onChange(date)}
-                      selected={field.value}
-                    />
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="amountFractional"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input type="number" placeholder="Kusuratli kisim" {...field} />
+                      </FormControl>
+                    </FormItem>
                   )}
                 />
               </div>
 
-              <div className="w-full">
 
-                <Label>Tutar</Label>
-                <br />
-                <div className="flex w-full">
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="amountWhole"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
+
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Not</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Not" {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Işlem tipi</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <Input
-
-                            type="number"
-                            placeholder="Tam kisim"
-                            {...field} />
+                          <RadioGroupItem value="d" />
                         </FormControl>
+                        <FormLabel className="font-normal">
+                          Borçlandı
+                        </FormLabel>
                       </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="amountFractional"
-                    render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <Input type="number" placeholder="Kusuratli kisim" {...field} />
+                          <RadioGroupItem value="c" />
                         </FormControl>
+                        <FormLabel className="font-normal">
+                          Ödeme yaptı
+                        </FormLabel>
                       </FormItem>
-                    )}
-                  />
-                </div>
-
-
-              </div>
-
-
-              <FormField
-                control={form.control}
-                name="note"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Not</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Not" {...field} />
-                    </FormControl>
-                    <FormDescription />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Işlem tipi</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="d" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Borçlandı
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="c" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Ödeme yaptı
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button type="submit">Kaydet</Button>
-              <Link
-                to={`/entities/${entityId}`}
-                className={buttonVariants({ variant: 'outline', })}
-              >
-                Geri
-              </Link>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
-    </>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button type="submit">Kaydet</Button>
+            <Link
+              to={`/entities/${entityId}`}
+              className={buttonVariants({ variant: 'outline', })}
+            >
+              Geri
+            </Link>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }
