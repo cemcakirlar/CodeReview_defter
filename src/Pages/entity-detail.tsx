@@ -160,6 +160,19 @@ export default function EntityDetail() {
                     </>
                   )
                 }
+                {balance < 0 ?
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Link
+                        className="flex items-center gap-1"
+                        to={`/entities/${entityId}/clear/${getAmountToClear(balance)}`}>
+                        Borç kapama
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                  : <></>
+                }
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => { setOpen(true) }}>
                   <TrashIcon />
@@ -200,6 +213,17 @@ export default function EntityDetail() {
       </div>
     </div>
   );
+}
+
+function getAmountToClear(balance: number) {
+  const integerPart = Math.ceil(balance);
+  let fraction = round(balance - integerPart, 2) * -1;
+  while (fraction - Math.floor(fraction) > 0) {
+    fraction *= 10
+  }
+
+  const amountToClear = `${integerPart * -1}_${fraction}`
+  return amountToClear
 }
 
 interface StatusProps {

@@ -15,7 +15,6 @@ import Backup from "./Pages/backup";
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
 
-
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="system" storageKey="theme">
@@ -45,6 +44,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route
               path="/entities/:entityId/new"
               element={<NewTransaction />}
+            />
+            <Route
+              path="/entities/:entityId/clear/:amount"
+              element={<NewTransaction clearDebt />}
             />
             <Route
               path="/entities/:entityId/:transactionId"

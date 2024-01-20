@@ -4,26 +4,11 @@ import { DefterDb, Entity, Transaction } from "../db";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, } from "@/components/ui/card"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { Button, buttonVariants } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import * as z from "zod"
@@ -37,12 +22,18 @@ const formSchema = z.object({
   type: z.enum(['c', 'd']),
   note: z.string(),
 })
-
+type TSchema = z.infer<typeof formSchema>
 
 const today = new Date();
-export default function NewTransaction() {
+
+interface NewTransactionProps {
+  clearDebt?: boolean
+}
+
+export default function NewTransaction({ clearDebt }: NewTransactionProps) {
+
   const [amountError, setAmountError] = useState('')
-  const { entityId } = useParams();
+  const { entityId, amount } = useParams();
   const [entity, setEntity] = useState(undefined as Entity | undefined);
   useEffect(() => {
     if (
@@ -53,18 +44,27 @@ export default function NewTransaction() {
       db.entities.get(parseInt(entityId)).then((rec) => setEntity(rec));
     }
   }, [entityId]);
+  const defaultVals: TSchema = {
+    date: today,
+    note: '',
+    amountWhole: '0',
+    amountFractional: '0',
+    type: 'd'
+  }
+  if (clearDebt && amount && amount.includes('_')) {
 
+    console.log(amount);
+
+    defaultVals.note = 'Borç kapama'
+    defaultVals.type = 'c'
+    defaultVals.amountWhole = amount.split('_')[0]
+    defaultVals.amountFractional = amount.split('_')[1]
+  }
 
   const navigate = useNavigate();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<TSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      date: today,
-      note: '',
-      amountWhole: '0',
-      amountFractional: '0',
-      type: 'd'
-    },
+    defaultValues: defaultVals,
   })
 
 
