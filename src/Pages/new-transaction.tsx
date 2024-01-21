@@ -142,7 +142,7 @@ export default function NewTransaction({ clearDebt }: NewTransactionProps) {
                   <DatePicker
                     wrapperClassName="w-full "
                     className="p-2 w-full bg-inherit border-2 text-sm rounded "
-                    placeholderText='Işlem tarihi'
+                    placeholderText='İşlem tarihi'
                     onChange={(date) => field.onChange(date)}
                     selected={field.value}
                   />
@@ -205,7 +205,7 @@ export default function NewTransaction({ clearDebt }: NewTransactionProps) {
               name="type"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Işlem tipi</FormLabel>
+                  <FormLabel>İşlem tipi</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}

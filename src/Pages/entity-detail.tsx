@@ -274,7 +274,7 @@ function Row({ t, entityId }: RowProps) {
   </span>)
 
   return (
-    <div className="mb-2 flex items-center justify-between rounded-md border p-4"    >
+    <div className="mb-2 flex items-center justify-between rounded-md border p-4">
       <div className="space-y-1">
         <p className="text-sm font-medium leading-none">
           {lblStr}

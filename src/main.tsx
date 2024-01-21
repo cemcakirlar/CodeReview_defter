@@ -14,6 +14,7 @@ import Restore from "./Pages/restore";
 import Backup from "./Pages/backup";
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/components/theme-provider"
+import Transactions from "./Pages/transactions";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -52,6 +53,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route
               path="/entities/:entityId/:transactionId"
               element={<TransactionDetail />}
+            />
+            <Route
+              path="/transactions"
+              element={<Transactions />}
             />
             <Route
               path="/restore"

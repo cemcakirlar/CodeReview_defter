@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { HiUsers, HiUserPlus, MdRestore, LuDatabaseBackup } from "../icons";
+import { HiUsers, HiUserPlus, MdRestore, LuDatabaseBackup, GrTransaction } from "../icons";
 import { buttonVariants } from "@/components/ui/button";
 import { } from '@radix-ui/react-icons'
 
@@ -17,6 +17,12 @@ export default function Home() {
         className={buttonVariants({ variant: 'default', })}
       >
         <HiUserPlus />&nbsp;Yeni Kişi Ekle
+      </Link>
+      <Link
+        to="/transactions"
+        className={buttonVariants({ variant: 'default', })}
+      >
+        <GrTransaction />&nbsp;Son Hareketler
       </Link>
       <Link
         to="/restore"
