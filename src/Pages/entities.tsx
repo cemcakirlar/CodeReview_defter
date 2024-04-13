@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { DefterDb } from "../db";
 import { Link } from "react-router-dom";
-import { VList } from "virtua";
+import { Input } from "@/components/ui/input";
+import { buttonVariants } from "@/components/ui/button";
+import { PersonIcon } from "@radix-ui/react-icons"
+import { Label } from "@/components/ui/label";
+import { round } from "@/lib/utils";
 
 const db = new DefterDb();
 
@@ -19,42 +23,69 @@ function Entities() {
     [searchKey]
   );
 
+  const [totalBalance, settotalBalance] = useState(0)
+  useEffect(() => {
+    db.transactions.toArray()
+      .then(d => {
+        const total = d.reduce(function (a, b) {
+          if (b.type == 'c') {
+            return round(a - b.amount, 2)
+          }
+          return round(a + b.amount, 2);
+        }, 0);
+        console.log(total);
+        settotalBalance(total)
+      })
+  }, [])
+
+
   return (
-    <>
-      <input
-        className="w-full h-10 mt-4 bg-inherit font-bold p-2 border-white border-2 rounded "
-        placeholder="Kisi/Kurum ara"
+    <div className="w-full">
+      <div className="flex justify-between items-center">
+        <Label className="text-xl">Kişiler</Label>
+        <Link
+          to="/entities/new"
+          className={buttonVariants({ variant: 'default', size: 'sm' })}
+        >
+          Yeni Kişi Ekle
+        </Link>
+      </div>
+      {totalBalance > 0 ?
+        <Label className="text-xs">Toplam alacaklar : {totalBalance} tl</Label> :
+        <></>}
+      <Input
+        className="placeholder:text-muted mb-2"
+        placeholder="Kişi Ara"
         onChange={(e) => setSarchKey(e.target.value.toString())}
       />
-      <Link
-        to="/entities/new"
-        className="text-center w-full block p-2 mt-2 underline underline-offset-4"
-      >
-        Yeni Ekle
-      </Link>
-      <VList style={{ height: "60vh" }}>
-        {entities ? (
-          entities.map((c) => (
+
+      {entities ? (
+        entities.map((c) => (
+          <div
+            key={c.id}
+            className="mb-2 flex items-center space-x-4 rounded-md border p-4"
+          >
+            <PersonIcon />
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {c.name}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {c.phoneNumber}
+              </p>
+            </div>
             <Link
-              key={c.id}
               to={`/entities/${c.id}`}
+              className={buttonVariants({ variant: 'default', })}
             >
-              <div className="p-2 m-2 flex border-b-2 rounded-sm ">
-                <h2 className="w-1/2 md:w-1/4">{c.name}</h2>
-                <span className="w-1/2 md:w-1/4 text-center">
-                  {c.phoneNumber}
-                </span>
-                <span className="hidden text-right md:inline-block md:w-1/2">
-                  {c.note}
-                </span>
-              </div>
+              Detay
             </Link>
-          ))
-        ) : (
-          <>loading</>
-        )}
-      </VList>
-    </>
+          </div>
+        ))
+      ) : (
+        <>loading</>
+      )}
+    </div>
   );
 }
 
